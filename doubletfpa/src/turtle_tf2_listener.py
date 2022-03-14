@@ -19,10 +19,19 @@ if __name__ == '__main__':
     rospy.wait_for_service('spawn')
     spawner = rospy.ServiceProxy('spawn', turtlesim.srv.Spawn)
     turtle_name = rospy.get_param('turtle', 'turtle2')
+    turtle_name2 = rospy.get_param('turtle2', 'turtle3')
+    turtle_name3 = rospy.get_param('turtle3', 'turtle4')
+
     spawner(4, 2, 0, turtle_name)
+    spawner(4, 1, 0, turtle_name2)
+    spawner(4, 0, 0, turtle_name3)
+
 
 # We are going to steer turtle2. We start by creating a turtle2/cmd_vel publisher
     turtle_vel = rospy.Publisher('%s/cmd_vel' % turtle_name, geometry_msgs.msg.Twist, queue_size=1)
+    turtle_vel2 = rospy.Publisher('%s/cmd_vel' % turtle_name2, geometry_msgs.msg.Twist, queue_size=1)
+    turtle_vel3 = rospy.Publisher('%s/cmd_vel' % turtle_name3, geometry_msgs.msg.Twist, queue_size=1)
+
 
 # And we loop, 10x per second
     rate = rospy.Rate(10.0)
@@ -30,6 +39,9 @@ if __name__ == '__main__':
         try:
 # This is the most important line. Requests the transform between turtle1 and turtle_name
             trans = tfBuffer.lookup_transform(turtle_name, 'turtle1', rospy.Time())
+            trans2 = tfBuffer.lookup_transform(turtle_name2, 'turtle2', rospy.Time())
+            trans3 = tfBuffer.lookup_transform(turtle_name3, 'turtle3', rospy.Time())
+
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException,tf2_ros.ExtrapolationException):
             rate.sleep()
             continue
@@ -42,5 +54,7 @@ if __name__ == '__main__':
 
 # And publish it to drive turtle2
         turtle_vel.publish(msg)
+        turtle_vel2.publish(msg)
+        turtle_vel3.publish(msg)
 
         rate.sleep()
